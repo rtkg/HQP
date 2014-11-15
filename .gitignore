@@ -1,0 +1,57 @@
+# git-ls-files --others --ignored
+# Lines that start with '#' are comments.
+
+# Backup and data files
+eg/eg.*
+*~
+*.bak
+*.off
+*.x
+*.txt
+*.mat
+x.*
+r
+x
+x?
+r?
+
+# patch results
+*.rej
+
+# Build products
+bin/
+obj/
+
+*#
+*.#
+*.obj
+*.zip
+*.a
+*.dll
+*.lib
+*.exe
+*.dat
+*.bag
+*.o
+*.md5sum
+
+# Qt files
+*.pro.user
+
+# DevStudio files
+*.bsc
+*.ncb
+*.pdb
+*.suo
+*.user
+*.ilk
+
+# CVS files
+CVS/*
+*/CVS/*
+*/*/CVS/*
+*/*/*/CVS/*
+*.cvsignore
+
+# Other files
+working/
