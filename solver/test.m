@@ -1,5 +1,7 @@
 clear all; close all; clc;
 
+addpath('../plot');
+
 % HQP(1).nx=3;
 % HQP(1).Eq.A=rand(1,3); HQP(1).Eq.A=[0.7770    0.5019    0.4255];
 % HQP(1).Eq.b=rand(1,1); HQP(1).Eq.b=0.6112;

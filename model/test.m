@@ -1,5 +1,7 @@
 clear all; close all; clc;
 
+addpath('../plot');
+
 SP = model_LBRiiwa820_APPLE();
 SV = System_Variables(SP);
 

@@ -1,7 +1,7 @@
 clear all; close all; clc;
 %Simple IK test - go to a plane (2nd level hierarchy) while staying above another plane (1st level hierarchy)
 
-addpath('./model'); addpath('./solver');
+addpath('./model'); addpath('./solver'); addpath('./plot');
 
 SP = model_LBRiiwa820_APPLE();
 SV = System_Variables(SP);
@@ -9,7 +9,7 @@ SV = System_Variables(SP);
 d_time=1e-2;
 tol=1e-4;
 max_iter=1e4;
-lmbd=2;
+lmbd=1;
 a=[1 -2 3]'; a=a/norm(a); %Target plane
 a2=[0 0 -1]'; a2=a2/norm(a2); %Obstacle plane
 
@@ -21,6 +21,7 @@ SV = calc_pos(SP,SV); pJ=fk_j(SP,SV,1:7); [pE, RE]=fk_e(SP,SV,SP.bN,SP.bP);
 h=drawSystem(pJ,pE,RE,SP,SV);
 plot_hyperplane_HK(a,b,r,col(1),shade,0,0);
 plot_hyperplane_HK(a2,b2,r,col(2),shade,0,1);
+%light('Position',[-1 0 0],'Style','local');
 
 count=1;
 Q=[]; DQ=[];
@@ -67,8 +68,18 @@ while (1)
   count=count+1;
 end    
 
+fr=10; %frame count for plotting
 for i=1:count-1
-    drawSystem(P(i).pJ,P(i).pE,P(i).RE,SP,SV,h);
+    if (~mod(i,fr))
+        tic; 
+        drawSystem(P(i).pJ,P(i).pE,P(i).RE,SP,SV,h);
+        pt=d_time*fr-toc;
+        if (pt < 0)
+            warning('Cannot keep up with plotting - increase the frame count ');
+        else    
+            pause(pt);
+        end
+    end
 end    
 
 t=linspace(0,(count-1)*d_time,count-1);
