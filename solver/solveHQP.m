@@ -17,8 +17,8 @@ for k=1:P
        b_ieq=[b_ieq; HQP(i).IEq.b+HQP(i).IEq.w]; 
     end    
  
-    A_eq=[A_eq; [HQP(k).Eq.A -ones(size(HQP(k).Eq.A,1),nk_e+nk_ie)]];
-    A_ieq=[A_ieq; [HQP(k).IEq.A -ones(size(HQP(k).IEq.A,1),nk_e+nk_ie)]];
+    A_eq=[A_eq; [HQP(k).Eq.A  -eye(nk_e) zeros(nk_e,nk_ie)]];
+    A_ieq=[A_ieq; [HQP(k).IEq.A zeros(nk_ie,nk_e) -eye(nk_ie)]];
     b_eq=[b_eq; HQP(k).Eq.b];
     b_ieq=[b_ieq; HQP(k).IEq.b];
 
@@ -29,9 +29,8 @@ for k=1:P
     ub=repmat(Inf,nx+nk_e+nk_ie,1);
     
     %Ax+b>=0
-
     [zeta,lambda,status] =qld(H, -[A_eq; A_ieq], f, [b_eq; b_ieq],lb, ub, nE,1);
-    
+
     if (status ~= 0)
         error('infeasible problem');
     end    
