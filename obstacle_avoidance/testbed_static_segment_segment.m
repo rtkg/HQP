@@ -4,101 +4,95 @@ addpath('../plot');
 
 d_time=0.01; %time step for simulation
 tol=1e-3;
-max_iter=5*1e2;
+max_iter=1e2;
 fr=1; %frame count for plotting
 
-%first hierarchy task -> avoid collisions between capsule 1 & capsule 2
-T1.r=0.1;
-T1.l=0.5;
-T1.C1.settings.col='y';
-T1.C1.settings.alpha=0.4;
-T1.C1=formCapsule(T1.r,T1.l,T1.C1.settings);
-T1.C1.geom.z=T1.C1.geom.z-T1.l/2; %put the reference frame in the center for now
-T1.C2.settings.col='m';
-T1.C2.settings.alpha=1;
-T1.C2=formCapsule(T1.r,T1.l,T1.C2.settings);
-T1.C2.geom.z=T1.C2.geom.z-T1.l/2; %put the reference frame in the center for now
-T1.lmbd=1;
-T1.di=0.4;
-T1.ds=0.22;
+%First-level hierarchy task -> keep capsules away from each other
+Tasks{1}.level=1;
+Tasks{1}.type='obstacle_avoidance';
+%==================Obstacle 1============================
+Tasks{1}.O1.type='capsule';
+Tasks{1}.O1.r=0.1;
+Tasks{1}.O1.L=0.5;
+Tasks{1}.O1.C=formCapsule(Tasks{1}.O1.r,Tasks{1}.O1.L);
+Tasks{1}.O1.ds=0.12;
+Tasks{1}.O1.di=0.2;
+%==================Obstacle 2============================
+Tasks{1}.O2.type='capsule';
+Tasks{1}.O2.r=0.1;
+Tasks{1}.O2.L=0.5;
+Tasks{1}.O2.C=formCapsule(Tasks{1}.O2.r,Tasks{1}.O2.L);
+Tasks{1}.O2.ds=0.12;
+Tasks{1}.O2.di=0.2;
+Tasks{1}.lmbd=1;
 
-%second hierarchy task -> bring capsule 1 center to the target position
-T2.lmbd=1;
-T2.t=[0; 0; 0];
+%Second-level hierarcy task -> move capsule frame center to target
+Tasks{2}.level=2;
+Tasks{2}.type='point_to_point';
+Tasks{2}.t=[-Tasks{1}.O1.L/2;0;0]; %target vector
+Tasks{2}.lmbd=1;
 
 nx=5; %q=[th, ph, c_x, c_y, c_z]'
-q_1i=[pi/2;0;0;0;1]; %initial configuration capsule 1
-q_2i=[pi/2;0;0;0;0.6]; %initial configuration capsule 2
+Tasks{1}.O1.q=[pi/2;0;-Tasks{1}.O1.L/2;0;0.8]; %initial configuration
+Tasks{1}.O2.q=[pi/2;0;-Tasks{1}.O2.L/2;0;0.4]; %initial configuration
 
 %=============Initial Plotting===========================================
+Tasks{1}.O2.h=surf(Tasks{1}.O2.C.geom.x,Tasks{1}.O2.C.geom.y,Tasks{1}.O2.C.geom.z,'FaceColor',Tasks{1}.O2.C.plot_settings.col,'FaceAlpha', Tasks{1}.O2.C.plot_settings.alpha,'EdgeAlpha',0); hold on;
+Tasks{1}.O2.C.T=hgtransform('Parent',gca);
+Tasks{1}.O1.h=surf(Tasks{1}.O1.C.geom.x,Tasks{1}.O1.C.geom.y,Tasks{1}.O1.C.geom.z,'FaceColor',Tasks{1}.O1.C.plot_settings.col,'FaceAlpha', Tasks{1}.O1.C.plot_settings.alpha,'EdgeAlpha',0); hold on;
+Tasks{1}.O1.C.T=hgtransform('Parent',gca);
+set(Tasks{1}.O1.h,'Parent',Tasks{1}.O1.C.T);
+set(Tasks{1}.O2.h,'Parent',Tasks{1}.O2.C.T);
 
-T1.h1=surf(T1.C1.geom.x,T1.C1.geom.y,T1.C1.geom.z,'FaceColor',T1.C1.plot_settings.col,'FaceAlpha', T1.C1.plot_settings.alpha,'EdgeAlpha',0); hold on;
-T1.h2=surf(T1.C2.geom.x,T1.C2.geom.y,T1.C2.geom.z,'FaceColor',T1.C2.plot_settings.col,'FaceAlpha', T1.C2.plot_settings.alpha,'EdgeAlpha',0); hold on;
+%Form transforms and set then
+set(Tasks{1}.O1.C.T,'Matrix',testBedGetTransform(Tasks{1}.O1.q));
+set(Tasks{1}.O2.C.T,'Matrix',testBedGetTransform(Tasks{1}.O2.q));
 
-T1.C1.T=hgtransform('Parent',gca);
-T1.C2.T=hgtransform('Parent',gca);
-set(T1.h1,'Parent',T1.C1.T);
-set(T1.h2,'Parent',T1.C2.T);
-
-%Form a transform and set it
-set(T1.C1.T,'Matrix',testBedGetTransform(q_1i));
-set(T1.C2.T,'Matrix',testBedGetTransform(q_2i));
-
-%find & plot the planes of capsule 2
-P1=testBedForwardKinematicsP1(T1.l,q_2i);
-P2=testBedForwardKinematicsP2(T1.l,q_2i);
-A=P2-P1; A=A/norm(A);
-b1=A'*P1; b2=A'*P2;
-T1.h3=plot_hyperplane_HK(A,b1,1,'m',0.5,0,1);
-T1.h4=plot_hyperplane_HK(A,b2,1,'m',0.5,0,1);
-
-
-axlims=[-0.5 0.5 -0.2 0.2 -0.2 1.2];
+axlims=[-2 2 -0.2 0.2 -0.2 1];
 axis(axlims);
 pbaspect([axlims(2)-axlims(1) axlims(4)-axlims(3) axlims(6)-axlims(5)]);
 light('Position',[-1 -1 1],'Style','local');
-axis vis3d; rotate3d on; view(22,35); grid on;
+axis vis3d; rotate3d on; view(35,16); grid on;
 xlabel('x'); ylabel('y'); zlabel('z');
+
+%find & plot the planes of capsule 2
+P1=testBedForwardKinematics(0,Tasks{1}.O2.q);
+P2=testBedForwardKinematics(Tasks{1}.O2.L,Tasks{1}.O2.q);
+A=P2-P1; A=A/norm(A);
+b1=A'*P1; b2=A'*P2;
+plot_hyperplane_HK(A,b1,1,'m',0.5,0,1);
+plot_hyperplane_HK(A,b2,1,'m',0.5,0,1);
+
 %========================================================================
-return
 
 %==========================form HQP=====================================
 
-q=q_i;
+q=Tasks{1}.O1.q;
 qd=zeros(5,1);
+
 Q=[]; QD=[]; E=[];
 count=1;
 while(1)
     tic
     %Compute the relevant task error
-    e=norm(q(3:end)-T2.t);
+    e=norm(q(3:end)-Tasks{2}.t);
     E=[E; e];
     if ((e < tol) || (count > max_iter));
         break;
     end
     
-    %Task 1: obstacle avoidance
-    P1=testBedForwardKinematicsP1(T2.r,q);
-    P2=testBedForwardKinematicsP2(T2.r,q);
-
-    %Distance between the line segment points
-    d1=pointPlaneDistance(P1,T1.A,T1.b); 
-    d2=pointPlaneDistance(P2,T1.A,T1.b);
-    if((d1 > 0) | (d2 > 0))
-        warning('Attenzione: line segment is penetrating');
-    end
-    
-    n=-T1.A/norm(T1.A);
+    %Compute constraint points, distances and normals for the given Obstacle pair
+    D=computeObstacleConstraintParameters(Tasks{1}.O1,Tasks{1}.O2);
     
     HQP(1).nx=nx;
-    HQP(1).IEq.A=[-n'*testBedJacobianP1(T2.r,q); -n'*testBedJacobianP2(T2.r,q)];
-    HQP(1).IEq.b=[T1.lmbd*(-d1-T1.ds)/(T1.di-T1.ds); T1.lmbd*(-d2-T1.ds)/(T1.di-T1.ds)];
+    HQP(1).IEq.A=[-D(1).n'*testBedJacobian(D(1).l,q); -D(2).n'*testBedJacobian(D(2).l,q)];
+    HQP(1).IEq.b=[Tasks{1}.lmbd*(-D(1).d-Tasks{1}.O1.ds)/(Tasks{1}.O1.di-Tasks{1}.O1.ds); Tasks{1}.lmbd*(-D(2).d-Tasks{1}.O2.ds)/(Tasks{1}.O2.di-Tasks{1}.O2.ds)];
     HQP(1).Eq.A=zeros(0,nx);
     HQP(1).Eq.b=zeros(0,1);
 
     %Task 2: desired motion
-    HQP(2).Eq.A=testBedJacobianC;
-    HQP(2).Eq.b=-T2.lmbd*(q(3:end)-T2.t);
+    HQP(2).Eq.A=testBedJacobian(0,q);
+    HQP(2).Eq.b=-Tasks{2}.lmbd*(q(3:end)-Tasks{2}.t);
     HQP(2).IEq.A=zeros(0,nx);
     HQP(2).IEq.b=zeros(0,1);
 
@@ -113,7 +107,7 @@ while(1)
         
     % %In-loop plotting
     % R=testBedGetTransform(q);
-    % set(T2.C.T,'Matrix',R);
+    % set(Tasks{2}.O.C.T,'Matrix',R);
     % drawnow update;        
     % pt=d_time*fr-toc;
     % pause(pt); 
@@ -124,7 +118,7 @@ end
 for i=1:count-1
     if (~mod(i,fr))
         tic; 
-        set(T2.C.T,'Matrix',testBedGetTransform(Q(i,:)));
+        set(Tasks{1}.O2.C.T,'Matrix',testBedGetTransform(Q(i,:)));
         drawnow update;        
         pt=d_time*fr-toc;
         if (pt < 0)

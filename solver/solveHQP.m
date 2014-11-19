@@ -22,7 +22,7 @@ for k=1:P
     b_eq=[b_eq; HQP(k).Eq.b];
     b_ieq=[b_ieq; HQP(k).IEq.b];
 
-    H=blkdiag(zeros(nx,nx),eye(nk_e+nk_ie)); %Hessian
+    H=2*blkdiag(zeros(nx,nx),eye(nk_e+nk_ie)); %Hessian
     nE=length(b_eq);
     f=zeros(nx+nk_e+nk_ie,1);
     lb=repmat(-Inf,nx+nk_e+nk_ie,1);

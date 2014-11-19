@@ -67,11 +67,12 @@ while(1)
     end
     
     %Compute constraint points, distances and normals for the given Obstacle pair
-    D=computeObstacleConstraintParameters(Tasks{1}.O1,Tasks{1}.O2,q);
+    Tasks{1}.O2.q=q;
+    D=computeObstacleConstraintParameters(Tasks{1}.O1,Tasks{1}.O2);
     
     HQP(1).nx=nx;
     HQP(1).IEq.A=[-D(1).n'*testBedJacobian(D(1).l,q); -D(2).n'*testBedJacobian(D(2).l,q)];
-    HQP(1).IEq.b=[Tasks{1}.lmbd*(-D(1).d-Tasks{1}.O1.ds)/(Tasks{1}.O1.di-Tasks{1}.O1.ds); Tasks{1}.lmbd*(-D(2).d-Tasks{1}.O2.ds)/(Tasks{1}.O2.di-Tasks{1}.O2.ds)];
+    HQP(1).IEq.b=[Tasks{1}.lmbd*(D(1).d-Tasks{1}.O1.ds)/(Tasks{1}.O1.di-Tasks{1}.O1.ds); Tasks{1}.lmbd*(D(2).d-Tasks{1}.O2.ds)/(Tasks{1}.O2.di-Tasks{1}.O2.ds)];
     HQP(1).Eq.A=zeros(0,nx);
     HQP(1).Eq.b=zeros(0,1);
 

@@ -6,8 +6,7 @@ function [d n]=pointPlaneDistance(P,A,b)
 
 A=A(:); P=P(:);
 b=b/norm(A); A=A/norm(A);
-d=A'*P-b;
+d=(A'*P-b)*(-1); %(Ax-b=0)
 
-%normal is flipped
 n=-A;
    
