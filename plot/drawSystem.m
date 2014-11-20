@@ -1,7 +1,7 @@
 function h=drawSystem(pJ,pE,RE,SP,SV,h);
 
     s=0.1; %scale for frames, joint axis indicators
-
+    
     %==================prepare the X/Y/ZData to be plotted for each handle
     XData{1}=pJ(1,:); YData{1}=pJ(2,:); ZData{1}=pJ(3,:); %Draw joint markers                                                       
     XData{end+1}=[pJ(1,:) pE(1)]; YData{end+1}=[pJ(2,:) pE(2)]; ZData{end+1}=[pJ(3,:) pE(3)]; %Lines between joints and EE   
@@ -15,13 +15,6 @@ function h=drawSystem(pJ,pE,RE,SP,SV,h);
     XData{end+1}=e1(:,1); YData{end+1}=e1(:,2); ZData{end+1}=e1(:,3);
     XData{end+1}=e2(:,1); YData{end+1}=e2(:,2); ZData{end+1}=e2(:,3);
     XData{end+1}=e3(:,1); YData{end+1}=e3(:,2); ZData{end+1}=e3(:,3);
-
-    
-    %HACK: add a line representing the base in negative z of the first joint (for the KUKA LBRiiwa820)  
-    ax=SV.L(2).R(:,3);
-    XData{end+1}=[pJ(1,1) pJ(1,1)-ax(1)*0.1575]; 
-    YData{end+1}=[pJ(2,1) pJ(2,1)-ax(2)*0.1575]; 
-    ZData{end+1}=[pJ(3,1) pJ(3,1)-ax(3)*0.1575]; 
     
     for iJ = 1:size(pJ,2) % iterate over all joint axis to be plotted
         ax=SV.L(iJ+1).R(:,3);
@@ -59,11 +52,8 @@ function h=drawSystem(pJ,pE,RE,SP,SV,h);
         h(end+1)=plot3(XData{7},YData{7},ZData{7},'g','LineWidth',2);
         h(end+1)=plot3(XData{8},YData{8},ZData{8},'b','LineWidth',2);
         
-        %HACK: Draw line representing the base in negative z of the first joint (for the KUKA LBRiiwa820)  
-        h(end+1)=plot3(XData{9},YData{9},ZData{9},'k','LineWidth',2);
-
         for iJ = 1:size(pJ,2) % iterate over all joint axis to be plotted
-            h(end+1)=plot3(XData{9+iJ}, YData{9+iJ}, ZData{9+iJ},'r','LineWidth',5);   
+            h(end+1)=plot3(XData{8+iJ}, YData{8+iJ}, ZData{8+iJ},'r','LineWidth',5);   
         end
 
         axlims=[-0.2 1.9 -2 1.4 -0.1 1.8];
