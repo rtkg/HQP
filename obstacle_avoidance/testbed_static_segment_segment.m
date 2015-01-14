@@ -83,7 +83,7 @@ while(1)
     end
 
     %Compute constraint points, distances and normals for the given Obstacle pair
-     D=testBedComputeObstacleConstraintParameters(Tasks{1}.O1,Tasks{1}.O2);
+     D=computeObstacleConstraintParameters(Tasks{1}.O1,Tasks{1}.O2);
 
     %stack all the obstacle avoidance constraints
     A=[]; b=[];

@@ -27,7 +27,7 @@ for k=1:P
     f=zeros(nx+nk_e+nk_ie,1);
     lb=repmat(-Inf,nx+nk_e+nk_ie,1);
     ub=repmat(Inf,nx+nk_e+nk_ie,1);
-    
+    keyboard
     %Ax+b>=0
     [zeta,lambda,status] =qld(H, -[A_eq; A_ieq], f, [b_eq; b_ieq],lb, ub, nE,1);
 

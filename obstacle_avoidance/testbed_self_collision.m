@@ -17,7 +17,6 @@ light('Position',[-1 0 0],'Style','local');
 Draw_System(SP, SV, SP.bN, SP.bP, 1:8, 1); axis equal; grid on; rotate3d on; axis vis3d;
 
 
-return;
 count=1;
 Q=[]; DQ=[];
 while (1)
